@@ -1,6 +1,6 @@
 package br.com.alura.adopet.api.validacao;
 
-import br.com.alura.adopet.api.dto.SolicitacaoAdocaoDTO;
+import br.com.alura.adopet.api.dto.adocao.SolicitacaoAdocaoDTO;
 import br.com.alura.adopet.api.exception.ValidationException;
 import br.com.alura.adopet.api.model.StatusAdocao;
 import br.com.alura.adopet.api.repository.AdocaoRepository;
@@ -18,7 +18,7 @@ public class ValidacaoTutorComLimiteDeAdocoes implements ValidacaoSolicitacaoAdo
     @Override
     public void validar(SolicitacaoAdocaoDTO dto) {
         int quantidadeDeAdocoes = adocaoRepository.countByTutorIdAndStatus(dto.tutorId(), StatusAdocao.APROVADO);
-        if (quantidadeDeAdocoes == 5) {
+        if (quantidadeDeAdocoes >= 5) {
             throw new ValidationException("Tutor chegou ao limite máximo de 5 adoções!");
         }
     }
