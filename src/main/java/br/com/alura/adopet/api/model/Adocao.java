@@ -1,7 +1,6 @@
 package br.com.alura.adopet.api.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
