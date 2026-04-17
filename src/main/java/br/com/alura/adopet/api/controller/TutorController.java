@@ -1,39 +1,42 @@
 package br.com.alura.adopet.api.controller;
 
-import br.com.alura.adopet.api.model.Tutor;
-import br.com.alura.adopet.api.repository.TutorRepository;
+import br.com.alura.adopet.api.dto.tutor.TutorCadastroDTO;
+import br.com.alura.adopet.api.dto.tutor.TutorResponseDTO;
+import br.com.alura.adopet.api.dto.tutor.TutorUpdateDTO;
+import br.com.alura.adopet.api.exception.ValidationException;
+import br.com.alura.adopet.api.service.TutorService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/tutores")
 public class TutorController {
 
-    @Autowired
-    private TutorRepository repository;
+    private final TutorService tutorService;
 
-    @PostMapping
-    @Transactional
-    public ResponseEntity<String> cadastrar(@RequestBody @Valid Tutor tutor) {
-        boolean telefoneJaCadastrado = repository.existsByTelefone(tutor.getTelefone());
-        boolean emailJaCadastrado = repository.existsByEmail(tutor.getEmail());
+    public TutorController(TutorService tutorService) {
+        this.tutorService = tutorService;
+    }
 
-        if (telefoneJaCadastrado || emailJaCadastrado) {
-            return ResponseEntity.badRequest().body("Dados já cadastrados para outro tutor!");
-        } else {
-            repository.save(tutor);
-            return ResponseEntity.ok().build();
+    @PostMapping("/cadastro")
+    public ResponseEntity<?> cadastrar(@RequestBody @Valid TutorCadastroDTO dto) {
+        try {
+            TutorResponseDTO response = tutorService.cadastrar(dto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (ValidationException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
 
-    @PutMapping
-    @Transactional
-    public ResponseEntity<String> atualizar(@RequestBody @Valid Tutor tutor) {
-        repository.save(tutor);
-        return ResponseEntity.ok().build();
+    @PutMapping("/{id}")
+    public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody @Valid TutorUpdateDTO dto) {
+        try {
+            TutorResponseDTO response = tutorService.atualizar(id, dto);
+            return ResponseEntity.ok(response);
+        } catch (ValidationException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
     }
-
 }

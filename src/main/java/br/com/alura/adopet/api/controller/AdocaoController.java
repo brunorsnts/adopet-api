@@ -1,13 +1,13 @@
 package br.com.alura.adopet.api.controller;
 
-import br.com.alura.adopet.api.dto.AprovacaoAdocaoDTO;
-import br.com.alura.adopet.api.dto.ReprovacaoAdocaoDTO;
-import br.com.alura.adopet.api.dto.SolicitacaoAdocaoDTO;
+import br.com.alura.adopet.api.dto.adocao.AprovacaoAdocaoDTO;
+import br.com.alura.adopet.api.dto.adocao.ReprovacaoAdocaoDTO;
+import br.com.alura.adopet.api.dto.adocao.SolicitacaoAdocaoDTO;
+import br.com.alura.adopet.api.exception.ValidationException;
 import br.com.alura.adopet.api.service.AdocaoService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
-import jakarta.validation.ValidationException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,7 +21,6 @@ public class AdocaoController {
     }
 
     @PostMapping
-    @Transactional
     public ResponseEntity<String> solicitar(@RequestBody @Valid SolicitacaoAdocaoDTO dto) {
         try {
             adocaoService.solicitar(dto);
@@ -32,18 +31,23 @@ public class AdocaoController {
     }
 
     @PutMapping("/aprovar")
-    @Transactional
     public ResponseEntity<String> aprovar(@RequestBody @Valid AprovacaoAdocaoDTO dto) {
-        adocaoService.aprovar(dto);
-        return ResponseEntity.ok().build();
+        try {
+            adocaoService.aprovar(dto);
+            return ResponseEntity.ok().build();
+        } catch(EntityNotFoundException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
     }
 
     @PutMapping("/reprovar")
-    @Transactional
     public ResponseEntity<String> reprovar(@RequestBody @Valid ReprovacaoAdocaoDTO dto) {
-        adocaoService.reprovar(dto);
-
-        return ResponseEntity.ok().build();
+        try {
+            adocaoService.reprovar(dto);
+            return ResponseEntity.ok().build();
+        } catch (EntityNotFoundException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
     }
 
 }
